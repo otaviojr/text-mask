@@ -1,9 +1,9 @@
 import React from 'react'
+import {TextField} from 'react-md'
 import PropTypes from 'prop-types'
-import createTextMaskInputElement
-  from '../../core/src/createTextMaskInputElement'
+import createTextMaskInputElement from '../../core/src/createTextMaskInputElement'
 
-export default class MaskedInput extends React.Component {
+export default class MaskedInput extends TextField {
   constructor(...args) {
     super(...args)
 
@@ -11,45 +11,57 @@ export default class MaskedInput extends React.Component {
     this.onChange = this.onChange.bind(this)
   }
 
-  initTextMask() {
+  initTextMask = () => {
+    this.input = this.getField()
     const {props, props: {value}} = this
-
     this.textMaskInputElement = createTextMaskInputElement({
-      inputElement: this.inputElement,
+      inputElement: this.input,
       ...props,
     })
     this.textMaskInputElement.update(value)
   }
 
   componentDidMount() {
+    super.componentDidMount()
     this.initTextMask()
+    this.input.addEventListener('keyup', this.onChange)
+    this.input.addEventListener('blur', this.onBlur)
   }
 
-  componentDidUpdate() {
+  componentDidUnmount() {
+    super.componentDidUnmount()
+    this.input.removeEventListener('keyup', this.onChange)
+    this.input.removeEventListener('blur', this.onBlur)
+  }
+
+  componentDidUpdate(prevProps) {
+    super.componentDidUpdate(prevProps)
     this.initTextMask()
   }
 
   render() {
-    const {render, ...props} = this.props
+    //const {...props} = this.props
 
-    delete props.mask
-    delete props.guide
-    delete props.pipe
-    delete props.placeholderChar
-    delete props.keepCharPositions
-    delete props.value
-    delete props.onBlur
-    delete props.onChange
-    delete props.showMask
+    //delete props.mask
+    //delete props.guide
+    //delete props.pipe
+    //delete props.placeholderChar
+    //delete props.keepCharPositions
+    //delete props.value
+    //delete props.onBlur
+    //delete props.onChange
+    //delete props.showMask
 
-    const ref = (inputElement) => (this.inputElement = inputElement)
+    //const ref = (inputElement) => (this.inputElement = inputElement)
 
-    return render(ref, {
-      onBlur: this.onBlur,
-      onChange: this.onChange,
-      defaultValue: this.props.value,
-      ...props,
-    })
+    return super.render()
+
+    //return render(ref, {
+    //  onBlur: this.onBlur,
+    //  onChange: this.onChange,
+    //  defaultValue: this.props.value,
+    //  ...props,
+    //})
   }
 
   onChange(event) {
@@ -83,10 +95,12 @@ MaskedInput.propTypes = {
   placeholderChar: PropTypes.string,
   keepCharPositions: PropTypes.bool,
   showMask: PropTypes.bool,
+  ...TextField.propTypes,
 }
 
 MaskedInput.defaultProps = {
-  render: (ref, props) => <input ref={ref} {...props} />
+  render: (ref, props) => <input ref={ref} {...props} />,
+  ...TextField.defaultProps
 }
 
 export {default as conformToMask} from '../../core/src/conformToMask.js'
